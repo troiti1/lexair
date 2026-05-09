@@ -531,7 +531,7 @@ def load_agent():
 
         if docs:
             parts = [
-                f"[FRAGMENTO {i} | Fuente: {os.path.basename(d.metadata.get('source','?')} | Página: {d.metadata.get('page','?')}]\n{d.page_content}"
+                f"[FRAGMENTO {i} | Fuente: {os.path.basename(d.metadata.get('source','?'))} | Página: {d.metadata.get('page','?')}]\n{d.page_content}"
                 for i, d in enumerate(docs, 1)
             ]
             context = "\n\n" + "—" * 40 + "\n\n".join(parts)
