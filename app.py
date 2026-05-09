@@ -34,7 +34,7 @@ st.set_page_config(
 
 @st.cache_data
 def get_logo_b64():
-    with open("logo.png", "rb") as f:
+    with open("logo_lexair.png", "rb") as f:
         return base64.b64encode(f.read()).decode()
 
 
