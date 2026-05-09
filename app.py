@@ -48,18 +48,18 @@ st.markdown("""
     /* ── Variables globales ── */
     :root {
         --bg-main:       #D6EAE4;
-        --bg-sidebar:    #FFFFFF;
-        --bg-chat:       #FFFFFF;
+        --bg-sidebar:    #F5F3F7;
+        --bg-chat:       #F5F3F7;
         --bg-user-msg:   #EDE7F6;
-        --bg-bot-msg:    #FFFFFF;
+        --bg-bot-msg:    #F5F3F7;
         --accent:        #7B6FDE;
         --accent-light:  #E5DEFF;
         --accent-soft:   #F5F0FF;
-        --text-primary:  #1A1A2E;
-        --text-secondary:#6B7280;
-        --text-muted:    #9CA3AF;
-        --border:        #E5E7EB;
-        --border-focus:  #C4B5FD;
+        --text-primary:  #111827;
+        --text-secondary:#4B5563;
+        --text-muted:    #6B7280;
+        --border:        #D1D5DB;
+        --border-focus:  #A78BFA;
         --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
         --shadow-md:     0 4px 12px rgba(0,0,0,.08);
         --radius-sm:     8px;
@@ -338,7 +338,7 @@ st.markdown("""
     [data-testid="stChatInput"] {
         border-radius: var(--radius-lg) !important;
         border: 1.5px solid var(--border) !important;
-        background: white !important;
+        background: var(--bg-chat) !important;
         box-shadow: var(--shadow-md) !important;
         font-family: var(--font-body) !important;
         transition: border-color .2s ease, box-shadow .2s ease !important;
@@ -347,7 +347,7 @@ st.markdown("""
     [data-testid="stChatInput"] input,
     [data-testid="stChatInput"] textarea,
     [data-testid="stChatInput"] * {
-        background: white !important;
+        background: var(--bg-chat) !important;
         color: var(--text-primary) !important;
         caret-color: var(--accent) !important;
     }
@@ -363,7 +363,7 @@ st.markdown("""
 
     /* ── Botón nueva sesión ── */
     .stButton > button {
-        background: white !important;
+        background: var(--bg-sidebar) !important;
         color: var(--accent) !important;
         border: 1.5px solid var(--accent-light) !important;
         border-radius: var(--radius-sm) !important;
