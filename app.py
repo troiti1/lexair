@@ -72,31 +72,33 @@ st.markdown("""
     /* ── Reset y base ── */
     html, body, [data-testid="stAppViewContainer"] {
         background:
-            radial-gradient(ellipse at 15% 30%, rgba(123, 111, 222, 0.06) 0%, transparent 55%),
-            radial-gradient(ellipse at 85% 20%, rgba(200, 180, 255, 0.07) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 80%, rgba(245, 240, 255, 0.08) 0%, transparent 50%),
-            linear-gradient(160deg, #F7F3EE 0%, #F0ECF9 50%, #EDE7F6 100%) !important;
+            radial-gradient(ellipse at 10% 25%, rgba(123, 111, 222, 0.12) 0%, transparent 55%),
+            radial-gradient(ellipse at 90% 15%, rgba(200, 150, 250, 0.1) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 85%, rgba(255, 200, 200, 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 40%, rgba(160, 200, 240, 0.06) 0%, transparent 50%),
+            linear-gradient(160deg, #ECE0F5 0%, #F5EDF0 35%, #E8F0F4 70%, #F0ECE4 100%) !important;
         font-family: var(--font-body) !important;
         color: var(--text-primary) !important;
     }
 
-    /* ── Eliminar bordes/barras negras ── */
+    /* ── Forzar transparencia en todos los contenedores ── */
     [data-testid="stHeader"], header {
         background: transparent !important;
         backdrop-filter: none !important;
     }
-    [data-testid="stApp"] {
+    [data-testid="stApp"], .stApp {
         background: transparent !important;
     }
-    .stApp, .main, .block-container {
+    .stApp > div, .main, .block-container,
+    section[data-testid="stMain"],
+    section[data-testid="stMain"] > div,
+    div[data-testid="stVerticalBlock"],
+    div[data-testid="column"] {
         background: transparent !important;
     }
     footer { display: none !important; }
 
     /* ── Eliminar fondo oscuro del área de input inferior ── */
-    section[data-testid="stMain"] {
-        background: transparent !important;
-    }
     [data-testid="stBottom"],
     [data-testid="stChatInputContainer"] {
         background: transparent !important;
@@ -347,14 +349,27 @@ st.markdown("""
     [data-testid="stChatInput"] {
         border-radius: var(--radius-lg) !important;
         border: 1.5px solid var(--border) !important;
-        background: var(--bg-chat) !important;
+        background: white !important;
         box-shadow: var(--shadow-md) !important;
         font-family: var(--font-body) !important;
         transition: border-color .2s ease, box-shadow .2s ease !important;
     }
+    [data-testid="stChatInput"] > div,
+    [data-testid="stChatInput"] input,
+    [data-testid="stChatInput"] textarea,
+    [data-testid="stChatInput"] * {
+        background: white !important;
+        color: var(--text-primary) !important;
+        caret-color: var(--accent) !important;
+    }
+    [data-testid="stChatInput"] input::placeholder,
+    [data-testid="stChatInput"] textarea::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 1 !important;
+    }
     [data-testid="stChatInput"]:focus-within {
         border-color: var(--border-focus) !important;
-        box-shadow: 0 0 0 3px rgba(37,99,235,.1), var(--shadow-md) !important;
+        box-shadow: 0 0 0 3px rgba(123, 111, 222, .12), var(--shadow-md) !important;
     }
 
     /* ── Botón nueva sesión ── */
@@ -621,6 +636,8 @@ if "session_id" not in st.session_state:
     st.session_state.session_id = f"streamlit_{uuid.uuid4().hex[:8]}"
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []   # lista de dicts {role, content, time}
+if "session_start_index" not in st.session_state:
+    st.session_state.session_start_index = 0
 if "agent_loaded" not in st.session_state:
     st.session_state.agent_loaded = False
 
@@ -644,9 +661,10 @@ with st.sidebar:
     st.markdown('<div class="status-badge"><div class="status-dot"></div>Sistema activo</div>',
                 unsafe_allow_html=True)
 
-    # Nueva sesión (no borra el historial visible)
-    if st.button("🔄  Nueva conversación"):
+    # Nueva sesión (no borra el historial)
+    if st.button("🔄  Nueva conversación", key="new_conv"):
         st.session_state.session_id = f"streamlit_{uuid.uuid4().hex[:8]}"
+        st.session_state.session_start_index = len(st.session_state.chat_history)
         st.rerun()
 
     st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
@@ -660,6 +678,10 @@ with st.sidebar:
                 if st.button(f"💬 {preview}", key=f"hist_{i}", use_container_width=True):
                     st.session_state.scroll_to = i
                     st.rerun()
+        if st.session_state.session_start_index > 0:
+            if st.button("⬇️  Volver al final", key="goto_latest", use_container_width=True):
+                st.session_state.session_start_index = 0
+                st.rerun()
         st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
 
     st.markdown("""
@@ -705,7 +727,8 @@ SUGGESTIONS = [
     "🧳  Mi maleta llegó dañada. ¿Cuánto tiempo tengo para reclamar?",
 ]
 
-if not st.session_state.chat_history:
+visible_msgs = st.session_state.chat_history[st.session_state.session_start_index:]
+if not visible_msgs:
     st.markdown("""
     <div class="welcome-card">
         <h3>👋 ¡Hola! Soy LexAir</h3>
@@ -728,7 +751,8 @@ if not st.session_state.chat_history:
 # ── Historial de mensajes ──
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-for i, msg in enumerate(st.session_state.chat_history):
+start = st.session_state.session_start_index
+for i, msg in enumerate(st.session_state.chat_history[start:], start=start):
     role  = msg["role"]
     content = msg["content"]
     ts    = msg.get("time", "")
@@ -787,17 +811,21 @@ if "pending_question" in st.session_state:
 
 # ── Scroll a mensaje específico ──
 if "scroll_to" in st.session_state:
-    idx = st.session_state.pop("scroll_to")
+    idx = st.session_state["scroll_to"]
+    if idx < st.session_state.session_start_index:
+        st.session_state.session_start_index = idx
+        st.rerun()
+    st.session_state.pop("scroll_to")
     st.markdown(f"""
     <style>
         #msg_{idx} {{
-            background: rgba(123, 111, 222, 0.1) !important;
+            background: rgba(123, 111, 222, 0.12) !important;
             border-radius: 14px !important;
             padding: 2px !important;
-            animation: msgPulse 1.5s ease;
+            animation: msgPulse 2s ease;
         }}
         @keyframes msgPulse {{
-            0%   {{ background: rgba(123, 111, 222, 0.15) !important; }}
+            0%   {{ background: rgba(123, 111, 222, 0.18) !important; }}
             100% {{ background: transparent !important; }}
         }}
     </style>
