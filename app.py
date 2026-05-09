@@ -71,7 +71,11 @@ st.markdown("""
 
     /* ── Reset y base ── */
     html, body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(135deg, #F8F5F0 0%, #F0ECF9 100%) !important;
+        background:
+            radial-gradient(ellipse at 15% 30%, rgba(123, 111, 222, 0.06) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 20%, rgba(200, 180, 255, 0.07) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 80%, rgba(245, 240, 255, 0.08) 0%, transparent 50%),
+            linear-gradient(160deg, #F7F3EE 0%, #F0ECF9 50%, #EDE7F6 100%) !important;
         font-family: var(--font-body) !important;
         color: var(--text-primary) !important;
     }
@@ -88,6 +92,22 @@ st.markdown("""
         background: transparent !important;
     }
     footer { display: none !important; }
+
+    /* ── Eliminar fondo oscuro del área de input inferior ── */
+    section[data-testid="stMain"] {
+        background: transparent !important;
+    }
+    [data-testid="stBottom"],
+    [data-testid="stChatInputContainer"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    [data-testid="stBottom"] > div {
+        background: transparent !important;
+    }
+    div[data-testid="stChatInput"] {
+        box-shadow: var(--shadow-md) !important;
+    }
 
     /* ── Ocultar elementos Streamlit innecesarios ── */
     #MainMenu, footer, [data-testid="stToolbar"],
@@ -106,15 +126,19 @@ st.markdown("""
     /* ── Logo / título sidebar ── */
     .sidebar-logo {
         display: flex;
+        flex-direction: column;
         align-items: center;
         gap: 10px;
         margin-bottom: 1.5rem;
         padding-bottom: 1.25rem;
         border-bottom: 1px solid var(--border);
+        text-align: center;
     }
-    .sidebar-logo .logo-icon {
-        font-size: 1.8rem;
-        line-height: 1;
+    .logo-img {
+        width: 140px;
+        height: auto;
+        border-radius: 16px;
+        flex-shrink: 0;
     }
     .sidebar-logo .logo-text {
         font-family: var(--font-display);
@@ -129,12 +153,6 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-top: 2px;
-    }
-    .logo-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        flex-shrink: 0;
     }
 
 
@@ -162,20 +180,20 @@ st.markdown("""
     /* ── Área principal del chat ── */
     .main-header {
         text-align: center;
-        padding: 2rem 1rem 1rem;
+        padding: 2.5rem 1rem 1.5rem;
         margin-bottom: 0.5rem;
     }
     .main-header h1 {
         font-family: var(--font-display);
-        font-size: 2rem;
+        font-size: 2.8rem;
         color: var(--text-primary);
         letter-spacing: -0.03em;
-        margin: 0 0 0.4rem;
+        margin: 0 0 0.6rem;
     }
     .main-header h1 span { color: var(--accent); }
     .main-header p {
         color: var(--text-secondary);
-        font-size: 0.92rem;
+        font-size: 1.1rem;
         margin: 0;
     }
 
@@ -259,22 +277,22 @@ st.markdown("""
         background: var(--bg-chat);
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
-        padding: 1.75rem 2rem;
-        margin: 1rem auto 1.5rem;
+        padding: 2rem 2.25rem;
+        margin: 1.5rem auto 2rem;
         max-width: 780px;
         box-shadow: var(--shadow-md);
     }
     .welcome-card h3 {
         font-family: var(--font-display);
-        font-size: 1.15rem;
+        font-size: 1.4rem;
         color: var(--text-primary);
-        margin: 0 0 0.6rem;
+        margin: 0 0 0.8rem;
     }
     .welcome-card p {
-        font-size: 0.87rem;
+        font-size: 1rem;
         color: var(--text-secondary);
-        margin: 0 0 1rem;
-        line-height: 1.6;
+        margin: 0 0 1.2rem;
+        line-height: 1.7;
     }
     .suggestion-grid {
         display: grid;
@@ -626,10 +644,9 @@ with st.sidebar:
     st.markdown('<div class="status-badge"><div class="status-dot"></div>Sistema activo</div>',
                 unsafe_allow_html=True)
 
-    # Nueva sesión
+    # Nueva sesión (no borra el historial visible)
     if st.button("🔄  Nueva conversación"):
         st.session_state.session_id = f"streamlit_{uuid.uuid4().hex[:8]}"
-        st.session_state.chat_history = []
         st.rerun()
 
     st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
