@@ -70,24 +70,39 @@ st.markdown("""
     }
 
     /* ── Reset y base ── */
-    html, body, [data-testid="stAppViewContainer"] {
+    html, body {
+        height: 100% !important;
+    }
+
+    /* ── Fondo con pseudo-elemento (infalible) ── */
+    [data-testid="stApp"] {
+        position: relative !important;
+        background: transparent !important;
+    }
+    [data-testid="stApp"]::before {
+        content: '' !important;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100vw !important; height: 100vh !important;
+        z-index: -1 !important;
         background:
             radial-gradient(ellipse at 10% 25%, rgba(123, 111, 222, 0.12) 0%, transparent 55%),
             radial-gradient(ellipse at 90% 15%, rgba(200, 150, 250, 0.1) 0%, transparent 50%),
             radial-gradient(ellipse at 50% 85%, rgba(255, 200, 200, 0.08) 0%, transparent 50%),
             radial-gradient(ellipse at 50% 40%, rgba(160, 200, 240, 0.06) 0%, transparent 50%),
             linear-gradient(160deg, #ECE0F5 0%, #F5EDF0 35%, #E8F0F4 70%, #F0ECE4 100%) !important;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        background: transparent !important;
         font-family: var(--font-body) !important;
         color: var(--text-primary) !important;
     }
 
-    /* ── Forzar transparencia en todos los contenedores ── */
+    /* ── Forzar transparencia en contenedores ── */
     [data-testid="stHeader"], header {
         background: transparent !important;
         backdrop-filter: none !important;
-    }
-    [data-testid="stApp"], .stApp {
-        background: transparent !important;
     }
     .stApp > div, .main, .block-container,
     section[data-testid="stMain"],
@@ -130,31 +145,24 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         margin-bottom: 1.5rem;
         padding-bottom: 1.25rem;
         border-bottom: 1px solid var(--border);
         text-align: center;
     }
     .logo-img {
-        width: 140px;
+        width: 120px;
         height: auto;
-        border-radius: 16px;
+        border-radius: 12px;
         flex-shrink: 0;
     }
-    .sidebar-logo .logo-text {
-        font-family: var(--font-display);
-        font-size: 1.4rem;
-        color: var(--accent);
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-    }
     .sidebar-logo .logo-sub {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        margin-top: 2px;
+        line-height: 1.3;
     }
 
 
@@ -185,14 +193,11 @@ st.markdown("""
         padding: 2.5rem 1rem 1.5rem;
         margin-bottom: 0.5rem;
     }
-    .main-header h1 {
-        font-family: var(--font-display);
-        font-size: 2.8rem;
-        color: var(--text-primary);
-        letter-spacing: -0.03em;
-        margin: 0 0 0.6rem;
+    .main-header img {
+        max-width: 200px;
+        height: auto;
+        margin-bottom: 0.8rem;
     }
-    .main-header h1 span { color: var(--accent); }
     .main-header p {
         color: var(--text-secondary);
         font-size: 1.1rem;
@@ -650,10 +655,7 @@ with st.sidebar:
     st.markdown(f"""
     <div class="sidebar-logo">
         <img src="data:image/png;base64,{logo_b64}" class="logo-img">
-        <div>
-            <div class="logo-text">LexAir</div>
-            <div class="logo-sub">Derechos del pasajero UE</div>
-        </div>
+        <div class="logo-sub">Derechos del pasajero UE</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -701,9 +703,9 @@ with st.sidebar:
 # ──────────────────────────────────────────────────────────────
 # ÁREA PRINCIPAL
 # ──────────────────────────────────────────────────────────────
-st.markdown("""
+st.markdown(f"""
 <div class="main-header">
-    <h1>Lex<span>Air</span></h1>
+    <img src="data:image/png;base64,{get_logo_b64()}" style="width:180px; height:auto; margin-bottom:0.5rem;">
     <p>Consulta tus derechos como pasajero aéreo en la Unión Europea</p>
 </div>
 """, unsafe_allow_html=True)
