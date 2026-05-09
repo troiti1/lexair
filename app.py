@@ -16,6 +16,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.message import add_messages
 from typing import Annotated, Sequence
 from typing_extensions import TypedDict
+import base64
 
 # ──────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DE PÁGINA — debe ser la primera llamada Streamlit
@@ -28,7 +29,17 @@ st.set_page_config(
 )
 
 # ──────────────────────────────────────────────────────────────
-# CSS PERSONALIZADO — interfaz de chatbot moderna con tonos claros
+# UTILIDADES
+# ──────────────────────────────────────────────────────────────
+
+@st.cache_data
+def get_logo_b64():
+    with open("logo.png", "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+
+# ──────────────────────────────────────────────────────────────
+# CSS PERSONALIZADO — interfaz de chatbot moderna con tonos pastel
 # ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -36,19 +47,19 @@ st.markdown("""
 
     /* ── Variables globales ── */
     :root {
-        --bg-main:       #F7F8FC;
+        --bg-main:       #F8F5F0;
         --bg-sidebar:    #FFFFFF;
         --bg-chat:       #FFFFFF;
-        --bg-user-msg:   #E8F0FE;
+        --bg-user-msg:   #EDE7F6;
         --bg-bot-msg:    #FFFFFF;
-        --accent:        #2563EB;
-        --accent-light:  #DBEAFE;
-        --accent-soft:   #EFF6FF;
-        --text-primary:  #111827;
+        --accent:        #7B6FDE;
+        --accent-light:  #E5DEFF;
+        --accent-soft:   #F5F0FF;
+        --text-primary:  #1A1A2E;
         --text-secondary:#6B7280;
         --text-muted:    #9CA3AF;
         --border:        #E5E7EB;
-        --border-focus:  #93C5FD;
+        --border-focus:  #C4B5FD;
         --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
         --shadow-md:     0 4px 12px rgba(0,0,0,.08);
         --radius-sm:     8px;
@@ -60,10 +71,23 @@ st.markdown("""
 
     /* ── Reset y base ── */
     html, body, [data-testid="stAppViewContainer"] {
-        background-color: var(--bg-main) !important;
+        background: linear-gradient(135deg, #F8F5F0 0%, #F0ECF9 100%) !important;
         font-family: var(--font-body) !important;
         color: var(--text-primary) !important;
     }
+
+    /* ── Eliminar bordes/barras negras ── */
+    [data-testid="stHeader"], header {
+        background: transparent !important;
+        backdrop-filter: none !important;
+    }
+    [data-testid="stApp"] {
+        background: transparent !important;
+    }
+    .stApp, .main, .block-container {
+        background: transparent !important;
+    }
+    footer { display: none !important; }
 
     /* ── Ocultar elementos Streamlit innecesarios ── */
     #MainMenu, footer, [data-testid="stToolbar"],
@@ -106,6 +130,13 @@ st.markdown("""
         letter-spacing: 0.08em;
         margin-top: 2px;
     }
+    .logo-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
 
     /* ── Badges de reglamento en sidebar ── */
     .reg-badge {
@@ -580,9 +611,10 @@ if "agent_loaded" not in st.session_state:
 # SIDEBAR
 # ──────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("""
+    logo_b64 = get_logo_b64()
+    st.markdown(f"""
     <div class="sidebar-logo">
-        <div class="logo-icon">✈️</div>
+        <img src="data:image/png;base64,{logo_b64}" class="logo-img">
         <div>
             <div class="logo-text">LexAir</div>
             <div class="logo-sub">Derechos del pasajero UE</div>
@@ -602,24 +634,17 @@ with st.sidebar:
 
     st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
 
-    # Reglamentos de referencia
-    st.markdown('<div class="sidebar-section-title">Base legal</div>', unsafe_allow_html=True)
-    regs = [
-        ("Reg. 261/2004", "Compensación por retraso, cancelación y denegación de embarque"),
-        ("Reg. 889/2002", "Responsabilidad por pasajeros y equipaje (Convenio Montreal)"),
-        ("Reg. 1008/2008", "Explotación de servicios aéreos y precios"),
-        ("C/2024/5992", "Derechos de personas con movilidad reducida"),
-        ("Dir. 261/2004", "Directrices interpretativas 2016"),
-    ]
-    for num, desc in regs:
-        st.markdown(f"""
-        <div class="reg-badge">
-            <span class="reg-num">{num}</span>
-            <span>{desc}</span>
-        </div>
-        """, unsafe_allow_html=True)
+    # --- Historial de conversación ---
+    if st.session_state.chat_history:
+        st.markdown('<div class="sidebar-section-title">📜 Historial</div>', unsafe_allow_html=True)
+        for i, msg in enumerate(st.session_state.chat_history):
+            if msg["role"] == "user":
+                preview = msg["content"][:55] + ("..." if len(msg["content"]) > 55 else "")
+                if st.button(f"💬 {preview}", key=f"hist_{i}", use_container_width=True):
+                    st.session_state.scroll_to = i
+                    st.rerun()
+        st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
 
-    st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
     st.markdown("""
     <div class="info-box">
         <strong>⚠️ Aviso legal</strong><br>
@@ -686,13 +711,13 @@ if not st.session_state.chat_history:
 # ── Historial de mensajes ──
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-for msg in st.session_state.chat_history:
+for i, msg in enumerate(st.session_state.chat_history):
     role  = msg["role"]
     content = msg["content"]
     ts    = msg.get("time", "")
     if role == "user":
         st.markdown(f"""
-        <div class="message-row user">
+        <div class="message-row user" id="msg_{i}">
             <div class="avatar user">👤</div>
             <div>
                 <div class="bubble user">{content}</div>
@@ -706,7 +731,7 @@ for msg in st.session_state.chat_history:
         html_content = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", content)
         html_content = html_content.replace("\n", "<br>")
         st.markdown(f"""
-        <div class="message-row bot">
+        <div class="message-row bot" id="msg_{i}">
             <div class="avatar bot">✈</div>
             <div>
                 <div class="bubble bot">{html_content}</div>
@@ -741,6 +766,25 @@ if "pending_question" in st.session_state:
 
     st.session_state.chat_history.append({"role": "bot", "content": answer, "time": time.strftime("%H:%M")})
     st.rerun()
+
+
+# ── Scroll a mensaje específico ──
+if "scroll_to" in st.session_state:
+    idx = st.session_state.pop("scroll_to")
+    st.markdown(f"""
+    <style>
+        #msg_{idx} {{
+            background: rgba(123, 111, 222, 0.1) !important;
+            border-radius: 14px !important;
+            padding: 2px !important;
+            animation: msgPulse 1.5s ease;
+        }}
+        @keyframes msgPulse {{
+            0%   {{ background: rgba(123, 111, 222, 0.15) !important; }}
+            100% {{ background: transparent !important; }}
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
 
 # ── Input del usuario ──
