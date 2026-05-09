@@ -48,7 +48,7 @@ st.markdown("""
     /* ── Variables globales ── */
     :root {
         --bg-main:       #D6EAE4;
-        --bg-sidebar:    #F5F3F7;
+        --bg-sidebar:    #EDEAF2;
         --bg-chat:       #F5F3F7;
         --bg-user-msg:   #EDE7F6;
         --bg-bot-msg:    #F5F3F7;
