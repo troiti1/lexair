@@ -47,7 +47,7 @@ st.markdown("""
 
     /* ── Variables globales ── */
     :root {
-        --bg-main:       #F8F5F0;
+        --bg-main:       #D6EAE4;
         --bg-sidebar:    #FFFFFF;
         --bg-chat:       #FFFFFF;
         --bg-user-msg:   #EDE7F6;
@@ -72,11 +72,10 @@ st.markdown("""
     /* ── Reset y base ── */
     html, body, [data-testid="stAppViewContainer"] {
         background:
-            radial-gradient(ellipse at 10% 25%, rgba(123, 111, 222, 0.18) 0%, transparent 55%),
-            radial-gradient(ellipse at 90% 15%, rgba(200, 150, 250, 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 85%, rgba(255, 200, 200, 0.12) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 40%, rgba(160, 200, 240, 0.1) 0%, transparent 50%),
-            linear-gradient(160deg, #D4C5F0 0%, #F0D6D6 35%, #C5E0F0 70%, #F0E4D4 100%) !important;
+            radial-gradient(ellipse at 15% 20%, rgba(99, 179, 160, 0.20) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 10%, rgba(56, 130, 160, 0.18) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 90%, rgba(80, 100, 160, 0.15) 0%, transparent 50%),
+            linear-gradient(150deg, #D6EAE4 0%, #C8DFF0 40%, #D0D8F0 75%, #E4EDE8 100%) !important;
         font-family: var(--font-body) !important;
         color: var(--text-primary) !important;
     }
@@ -443,6 +442,11 @@ st.markdown("""
         border: none;
         border-top: 1px solid var(--border);
         margin: 1.25rem 0;
+    }
+
+    /* Forzar fondo en raíz de Streamlit */
+    [data-testid="stApp"] {
+        background: linear-gradient(150deg, #D6EAE4 0%, #C8DFF0 40%, #D0D8F0 75%, #E4EDE8 100%) !important;
     }
 </style>
 """, unsafe_allow_html=True)
