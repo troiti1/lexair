@@ -229,3 +229,10 @@ Este proyecto es de carácter académico y educativo. Los documentos legales uti
 ---
 
 *Proyecto Final — IA Generativa | Módulo: RAG + LangGraph*
+
+
+## 🌐 Demo en vivo
+
+Prueba LexAir directamente en el navegador, sin instalar nada:
+
+**[👉 lexair-2ftmxrc3zn7cpkprba6jbk.streamlit.app](https://lexair-2ftmxrc3zn7cpkprba6jbk.streamlit.app/)**
